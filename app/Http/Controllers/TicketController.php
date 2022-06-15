@@ -85,18 +85,14 @@ class TicketController extends Controller
 
   public function admin()
   {
-    if (auth()->user()->admin != True) {
-      return redirect()->back()->with('error', 'Restricted Access');
-    }
+    abort_if(!auth()->user()->admin,403);
     $tickets = ticket::orderBy('tickets.created_at', 'DESC')->get();
     return view('ticket/admin')->with(['tickets' => $tickets]);
   }
 
   public function report()
   {
-    if (auth()->user()->admin != True) {
-      return redirect()->back()->with('error', 'Restricted Access');
-    }
+    abort_if(!auth()->user()->admin,403);
     $tickets = Ticket::where('sorted', false)
       ->orderBy('tickets.created_at', 'DESC')
       ->get();
@@ -111,19 +107,16 @@ class TicketController extends Controller
 
   public function comment(Request $request, $id)
   {
-    $tickets = ticket::find($id);
-    $user = User::where('id',$tickets->user_id)->first();
-    $tickets->update(['comments' => $request->comments]);
-    $comment = $request->comments;
-    Mail::to($user->email)->send(new AdminResponse($tickets, $comment,auth()->user()));
+    $ticket = ticket::find($id);
+    $user = User::where('id',$ticket->user_id)->first();
+    $ticket->update(['comments' => $request->comments]);
+    Mail::to($user->email)->send(new AdminResponse($ticket, $request->comments, auth()->user()));
     return redirect()->back()->with('message', ' Ticket commented Successfully');
   }
 
   public function users()
   {
-    if (auth()->user()->admin != True) {
-      return redirect()->back()->with('error', 'Restricted Access');
-    }
+    abort_if(!auth()->user()->admin,403);
     $tickets = User::get();
     return view('ticket/users')->with(['tickets' => $tickets]);
   }
@@ -166,9 +159,7 @@ class TicketController extends Controller
 
   public function dashboard()
   {
-    if (auth()->user()->admin != True) {
-      return redirect()->back()->with('error', 'Restricted Access');
-    }
+    abort_if(!auth()->user()->admin,403);
     $user = User::get();
     $received = ticket::get();
     $tickets = ticket::where('sorted', true)->get();

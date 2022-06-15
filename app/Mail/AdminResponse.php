@@ -12,18 +12,18 @@ class AdminResponse extends Mailable
     use Queueable, SerializesModels;
 
     public $ticket;
-    public $comment;
     public $sender;
+    public $comment;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($tickets, $comment, $user)
+    public function __construct($ticket,$comments, $user)
     {
-        $this->ticket = $tickets;
-        $this->comment = $comment;
+        $this->ticket = $ticket;
         $this->sender = $user;
+        $this->comment = $comments;
     }
 
     /**
@@ -33,6 +33,7 @@ class AdminResponse extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.AdminResponse');
+        return $this->markdown('emails.AdminResponse')
+        ->replyTo('liazurah@betterglobeforestry.com', 'Systems and Administration Manager');
     }
 }
